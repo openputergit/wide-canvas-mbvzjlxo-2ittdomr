@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body class="bg-slate-50 font-['Inter']">
+    <div class="min-h-screen">
+        <nav class="bg-teal-600 text-white p-4">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-2xl font-bold">Employee Portal</h1>
+                <div class="flex items-center gap-4">
+                    <span id="employeeName">Welcome, Employee</span>
+                    <button onclick="logout()" class="bg-teal-700 px-4 py-2 rounded hover:bg-teal-800">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="container mx-auto p-4">
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Salary Information -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-4">Salary Dashboard</h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span>Base Salary</span>
+                            <span id="baseSalary" class="font-semibold">$0</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span>Late Deductions</span>
+                            <span id="lateDeductions" class="font-semibold text-red-500">-$0</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span>Additional Remuneration</span>
+                            <span id="additionalPay" class="font-semibold text-green-500">+$0</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-teal-50 rounded">
+                            <span class="font-bold">Net Salary</span>
+                            <span id="netSalary" class="font-bold text-teal-600">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attendance Tracker -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-4">Attendance Overview</h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span>Total Working Days</span>
+                            <span id="workingDays" class="font-semibold">0</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span>Leaves Taken</span>
+                            <span id="leavesTaken" class="font-semibold">0</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span>Late Arrivals</span>
+                            <span id="lateArrivals" class="font-semibold">0</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span>Remaining Leaves</span>
+                            <span id="remainingLeaves" class="font-semibold">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leave Calendar -->
+                <div class="bg-white p-6 rounded-lg shadow-md md:col-span-2">
+                    <h2 class="text-xl font-semibold mb-4">Leave Calendar</h2>
+                    <div id="calendar" class="grid grid-cols-7 gap-2">
+                        <!-- Calendar will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Sample employee data (In real application, this would come from a backend)
+        let employeeData = {
+            name: "John Doe",
+            id: "EMP001",
+            baseSalary: 5000,
+            lateDeductions: 150,
+            additionalPay: 300,
+            workingDays: 22,
+            leavesTaken: 3,
+            lateArrivals: 2,
+            totalLeaves: 24
+        };
+
+        // Initialize the dashboard
+        function initializeDashboard() {
+            document.getElementById('employeeName').textContent = `Welcome, ${employeeData.name}`;
+            document.getElementById('baseSalary').textContent = `$${employeeData.baseSalary}`;
+            document.getElementById('lateDeductions').textContent = `-$${employeeData.lateDeductions}`;
+            document.getElementById('additionalPay').textContent = `+$${employeeData.additionalPay}`;
+            document.getElementById('netSalary').textContent = 
+                `$${employeeData.baseSalary - employeeData.lateDeductions + employeeData.additionalPay}`;
+            
+            document.getElementById('workingDays').textContent = employeeData.workingDays;
+            document.getElementById('leavesTaken').textContent = employeeData.leavesTaken;
+            document.getElementById('lateArrivals').textContent = employeeData.lateArrivals;
+            document.getElementById('remainingLeaves').textContent = 
+                employeeData.totalLeaves - employeeData.leavesTaken;
+
+            generateCalendar();
+        }
+
+        // Generate calendar
+        function generateCalendar() {
+            const calendar = document.getElementById('calendar');
+            calendar.innerHTML = '';
+
+            // Add day headers
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            days.forEach(day => {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'text-center font-semibold text-gray-600';
+                dayElement.textContent = day;
+                calendar.appendChild(dayElement);
+            });
+
+            // Add calendar dates
+            const date = new Date();
+            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+            const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            
+            // Add empty cells for days before first day of month
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'text-center p-2';
+                calendar.appendChild(emptyDay);
+            }
+
+            // Add days of the month
+            for (let i = 1; i <= lastDay.getDate(); i++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'text-center p-2 border rounded hover:bg-gray-100 cursor-pointer';
+                dayElement.textContent = i;
+                dayElement.onclick = () => toggleLeave(i);
+                calendar.appendChild(dayElement);
+            }
+        }
+
+        // Toggle leave on calendar
+        function toggleLeave(day) {
+            alert(`Leave request for day ${day} will be processed`);
+        }
+
+        // Logout function
+        function logout() {
+            if(confirm('Are you sure you want to logout?')) {
+                alert('Logged out successfully');
+                // In real application, redirect to login page
+            }
+        }
+
+        // Initialize the dashboard when page loads
+        window.onload = initializeDashboard;
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
